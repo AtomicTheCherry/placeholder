@@ -1,0 +1,297 @@
+// The Game Mission.cpp : Defines the entry point for the console application.
+//Joshua P 3/28/22
+
+//#include "stdafx.h"
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <math.h>
+#include <ctime>
+#include <chrono>
+#include <thread>
+#include <fstream>
+#include <assert.h>
+#include <cstring>
+#include <windows.h>
+
+using namespace std;
+char map[22][23] = {
+	"======================",
+	"||********||********||",
+	"||o[]*[_]*[]*[_]*[]o||",
+	"||******************||",
+	"||*==*|*[====]*|*==*||",
+	"||****|***||***|****||",
+	"=====*|== [] ==|*=====",
+	"   ||*|        |*||   ",
+	"[]===*| --~~-- |*===[]",
+	"(    *  |    |  *    )",
+	"[]===*| ====== |*===[]",
+	"   ||*|        |*||   ",
+	"=====*| [====] |*=====",
+	"||********||********||",
+	"||*==*===*[]*===*==*||",
+	"||o*|****** *****|*o||",
+	"||=*|*|*[====]*|*|*=||",
+	"||****|***||***|****||",
+	"||*======*[]*======*||",
+	"||******************||",
+	"======================",
+};
+char om[22][23] = {
+	"======================",
+	"||********||********||",
+	"||o[]*[_]*[]*[_]*[]o||",
+	"||******************||",
+	"||*==*|*[====]*|*==*||",
+	"||****|***||***|****||",
+	"=====*|== [] ==|*=====",
+	"   ||*|        |*||   ",
+	"[]===*| --~~-- |*===[]",
+	"(    *  |    |  *    )",
+	"[]===*| ====== |*===[]",
+	"   ||*|        |*||   ",
+	"=====*| [====] |*=====",
+	"||********||********||",
+	"||*==*===*[]*===*==*||",
+	"||o*|****** *****|*o||",
+	"||=*|*|*[====]*|*|*=||",
+	"||****|***||***|****||",
+	"||*======*[]*======*||",
+	"||******************||",
+	"======================",
+};
+//Character starting location
+int x = 11;
+int y = 15;
+int level = 1;
+int points = 0;
+int lives = 3;
+int E;
+int F;
+string Direction;
+
+void moveHorizontal(int h, char player);
+void moveVerticle(int v, char player);
+void nextLevel();
+void lifeCheck();
+void ghost();
+
+bool gameRunning = true;
+
+int main()
+{
+map[15][11] = char(16);
+ghost();
+
+	while (gameRunning)
+	{
+		system("cls");
+		cout << "Level = " << level << endl;
+		cout << "Points: ";
+		cout << points;
+		cout << endl;
+
+		for (int i = 0; i < 21; i++)
+		{
+			cout << map[i] << endl;
+		}
+		cout << "Lives: ";
+		for (int l = 1; l <= (lives - 1); l++)
+		cout << char(3);
+		system("pause>nul");
+		if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
+		{
+			moveVerticle(-1, char(30));
+		}
+		if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
+		{
+			moveVerticle(1, char(31));
+		}
+		if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
+		{
+			moveHorizontal(1, char(16));
+		}
+		if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
+		{
+			moveHorizontal(-1, char(17));
+		}
+		//add abilities
+	}
+	system("pause");
+	return 0;
+}
+void moveHorizontal(int h, char player)
+{
+	int x2 = x + h;
+	if (map[y][x2] == '*')
+	{
+		map[y][x] = ' ';
+		x += h;
+		map[y][x] = player;
+		points += 10;
+	}
+	else if (map[y][x2] == ' ')
+	{
+		map[y][x] = ' ';
+		x += h;
+		map[y][x] = player;
+	}
+	else if (map[y][x2] == ')')
+	{
+		map[y][x] = ' ';
+		x = 1;
+		map[y][x] = player;
+	}
+	else if (map[y][x2] == '(')
+	{
+		map[y][x] = ' ';
+		x = 20;
+		map[y][x] = player;
+	}
+	else if (map[y][x2] == 'o')
+	{
+		points += 50;
+		system("cls");
+		cout << "You Win\n";
+		nextLevel();
+	}
+	else if (map[y][x2] == char(1))
+	{
+		map[y][x] = ' ';
+		lifeCheck();
+	}
+	//Code for collision
+	else
+	{
+		map[y][x] = player;
+	}
+}
+
+void moveVerticle(int v, char player)
+{
+	int y2 = y + v;
+	if (map[y2][x] == '*')
+	{
+		map[y][x] = ' ';
+		y += v;
+		map[y][x] = player;
+		points += 10;
+	}
+	if (map[y2][x] == ' ')
+	{
+		map[y][x] = ' ';
+		y += v;
+		map[y][x] = player;
+	}
+	else if (map[y2][x] == 'o')
+	{
+		points += 50;
+		system("cls");
+		cout << "You Win\n";
+		nextLevel();
+
+	}
+	else if (map[y2][x] == char(1))
+	{
+		map[y][x] = ' ';
+		lifeCheck();
+	}
+	//Code for collision
+	else
+	{
+		map[y][x] = player;
+	}
+}
+void nextLevel()
+{
+	x = 11;
+	y = 15;
+	level++;
+	if (level != 1)
+	{
+		for (int a = 0; a < 22; a++)
+		{
+			for (int b = 0; b < 23; b++)
+			{
+				map[a][b] = om[a][b];
+				map[15][11] = char(16);
+			}
+		}
+		ghost();
+	}
+
+}
+
+void lifeCheck()
+{
+	lives--;
+	if (lives == 0)
+	{
+		system("cls");
+		cout << "You Lose!\n";
+		gameRunning = false;
+	}
+	else
+	{
+		x = 11;
+		y = 15;
+		map[15][11] = char(16);
+	}
+}
+void ghost()
+{
+	if (map[7][11] == char(1))
+	{
+		map[7][11] = ' ';
+		map[7][12] = char(1);
+	}
+	else
+	{
+	map[7][11] = char(1);
+	map[7][12] = ' ';
+	}
+	/*Basic Square Movement
+	map[E][F] = ' ';
+	if (Direction == "Right")
+	{
+		F++;
+		if (F == 11)
+		{
+			F = 11;
+			E = 7;
+			Direction = "Down";
+		}
+	}
+	else if (Direction == "Down")
+	{
+		E++;
+		if (E == 7)
+		{
+			E = 6;
+			F = 12;
+			Direction = "Left";
+		}
+	}
+	else if (Direction == "Left")
+	{
+		F--;
+		if (F == 8)
+		{
+			F = 9;
+			E = 5;
+			Direction = "Up";
+		}
+	}
+	else if (Direction == "Up")
+	{
+		E--;
+		if (E == 1)
+		{
+			E = 2;
+			F = 10;
+			Direction = "Right";
+		}
+	}
+	map[E][F] = char(1);*/
+}
